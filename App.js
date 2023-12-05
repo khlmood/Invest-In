@@ -1,20 +1,30 @@
+import 'react-native-gesture-handler';
+import React, { useState, useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { onAuthStateChanged } from 'firebase/auth';
+import { FIREBASE_AUTH } from './firebaseConfig';
 
-export default function App() {
+import LoginPage from './login/LoginPage';
+import HomePage from './screens/HomePage';
+
+const App = () => {
+  const [user, setUser] = useState(null); 
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (currentUser) => {
+      setUser(currentUser);
+    });
+  
+    return () => unsubscribe();
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+    <NavigationContainer>
+      {user ? <HomePage /> : <LoginPage />}
       <StatusBar style="auto" />
-    </View>
+    </NavigationContainer>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
