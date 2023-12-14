@@ -2,11 +2,10 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { FIREBASE_AUTH } from './../firebaseConfig';
+import Icon from 'react-native-vector-icons/Ionicons';
 
-const CustomDrawerContent = (props) => {
-  const numberOfFollowers = 0;
-  const numberOfFollowing = 0;
-
+// email[0], username[1], profilePicture[2], numberOfFollowers[3], numberOfFollowing[4], balance[5], userCompleteReg[6]
+const CustomDrawerContent = ({userData, ...props}) => {
   return (
     <DrawerContentScrollView {...props}>
       <View style={styles.profileContainer}>
@@ -16,14 +15,16 @@ const CustomDrawerContent = (props) => {
             style={styles.profileImage}
           />
         </View>
-        <Text style={styles.userName}>UserNameHere</Text>
-        <Text style={styles.userStats}>{numberOfFollowers} followers   {numberOfFollowing} following</Text>
+        <Text style={styles.userName}>{ userData[1] }</Text>
+        <Text style={styles.userStats}>{userData[3]} followers   {userData[4]} following</Text>
         <DrawerItemList {...props} />
         <TouchableOpacity style={styles.button} onPress={() => props.navigation.navigate('Profil')}>
-          <Text>Profil</Text>
+          <Icon name="person-outline" size={25} color="black" style={{paddingRight: 20}} />
+          <Text style={styles.items}>Profil</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => props.navigation.navigate('Settings')}>
-          <Text>Settings</Text>
+        <Icon name="settings-outline" size={25} color="black" style={{paddingRight: 20}} />
+          <Text style={styles.items} >Settings</Text>
         </TouchableOpacity>
       </View>
       <TouchableOpacity style={styles.logoutButton} onPress={() => {FIREBASE_AUTH.signOut()}}>
@@ -61,9 +62,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   button: {
+    flexDirection: 'row',
     paddingVertical: 10,
-    alignItems: 'center',
     width: '100%',
+    height: 50,
   },
   logoutButton: {
     marginTop: 15,
@@ -73,6 +75,10 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     color: 'red',
+  },
+  items: {
+    fontSize: 20,
+    fontFamily: '',
   },
 });
 

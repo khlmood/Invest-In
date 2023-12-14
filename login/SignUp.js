@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, KeyboardAvoidingView, Alert, ActivityIndicator } from 'react-native';
-import { FIREBASE_AUTH } from './../firebaseConfig';
+import { FIREBASE_AUTH, FIREBASE_DB } from './../firebaseConfig';
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from 'firebase/firestore';
 
 const SignUp = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -52,15 +53,23 @@ const SignUp = ({ navigation }) => {
     
     setIsLoading(true);
     try {
-      await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password);
+      const userCredential = await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password);
+      const user = userCredential.user;
+
+      const userDocRef = doc(FIREBASE_DB, "users", user.uid);
+      await setDoc(userDocRef, {
+        email: user.email,
+        username: '',
+        profilePicture: 'None', 
+        followersCount: 0,
+        followingCount: 0,
+        balance: 10000,
+        userCompleteReg: false
+      });
+
       Alert.alert('Registered', 'Check your Email inbox!');
     } catch (error) {
-      if (error.code === 'auth/email-already-in-use') {
-        Alert.alert('Email already registered', 'The entered email is already in use.');
-      } else {
-        console.log('Sign Up Page: ' + error);
-        Alert.alert('Registration Error', 'Failed to create account. Please try again.');
-      }
+      console.log('SignUp Page : ' + error);
     } finally {
       setIsLoading(false);
     }
