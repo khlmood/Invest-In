@@ -5,6 +5,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from 'firebase/firestore';
 
 const SignUp = ({ navigation }) => {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -59,12 +60,11 @@ const SignUp = ({ navigation }) => {
       const userDocRef = doc(FIREBASE_DB, "users", user.uid);
       await setDoc(userDocRef, {
         email: user.email,
-        username: '',
+        username: username,
         profilePicture: 'None', 
         followersCount: 0,
         followingCount: 0,
         balance: 10000,
-        userCompleteReg: false
       });
 
       Alert.alert('Registered', 'Check your Email inbox!');
@@ -91,6 +91,15 @@ const SignUp = ({ navigation }) => {
           <Image source={require('./../assets/backArrow.png')} style={styles.backArrow} />
         </TouchableOpacity>
         <Text style={styles.headerText}>Sign up with Email</Text>
+        <TextInput
+          value={username}
+          onChangeText={(text) => setUsername(text)}
+          style={[styles.input, focusedInput === 'username' && styles.focusedInput]}
+          onFocus={() => setFocusedInput('username')}
+          onBlur={() => setFocusedInput(null)}
+          placeholderTextColor="grey"
+          placeholder="Username"
+        />
         <TextInput
           ref={emailRef}
           value={email}

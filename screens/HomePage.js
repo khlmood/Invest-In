@@ -103,7 +103,6 @@ const HomePage = () => {
     numberOfFollowers: 0,
     numberOfFollowing: 0,
     balance: 0,
-    userCompleteReg: false
   });
   
   useEffect(() => {
@@ -120,7 +119,6 @@ const HomePage = () => {
             numberOfFollowers: data.followersCount,
             numberOfFollowing: data.followingCount,
             balance: data.balance,
-            userCompleteReg: data.userCompleteReg
           };
           setUserData(updatedUserData);
         }
@@ -141,18 +139,9 @@ const HomePage = () => {
     g_userdata[3] = userData.numberOfFollowers;
     g_userdata[4] = userData.numberOfFollowing;
     g_userdata[5] = userData.balance;
-    g_userdata[6] = userData.userCompleteReg;
   }, [userData]);
 
   const navigation = useNavigation();
-
-  useEffect(() => {
-    // Automatically navigate to Profile screen if userCompleteReg is false
-    if (userData.userCompleteReg === false) {
-      navigation.navigate('Profil', { userData, setUserData });
-    }
-  }, [userData.userCompleteReg, navigation]);
-
 
   return (
     <RootStack.Navigator>

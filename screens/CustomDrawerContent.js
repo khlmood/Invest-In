@@ -4,7 +4,7 @@ import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawe
 import { FIREBASE_AUTH } from './../firebaseConfig';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-// email[0], username[1], profilePicture[2], numberOfFollowers[3], numberOfFollowing[4], balance[5], userCompleteReg[6]
+// email[0], username[1], profilePicture[2], numberOfFollowers[3], numberOfFollowing[4], balance[5]
 const CustomDrawerContent = ({userData, ...props}) => {
   return (
     <DrawerContentScrollView {...props}>

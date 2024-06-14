@@ -8,7 +8,6 @@ const initialState = [{
     numberOfFollowers: 0,
     numberOfFollowing: 0,
     balance: 0,
-    userCompleteReg: false
 }];
 
 const usersSlice = createSlice({
