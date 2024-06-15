@@ -7,8 +7,6 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { doc, getDoc } from 'firebase/firestore';
 import { FIREBASE_DB, FIREBASE_AUTH } from './../firebaseConfig';
-import { useNavigation } from '@react-navigation/native';
-
 
 import HomeScreen from './HomeScreen';
 import StocksScreen from './StocksScreen';
@@ -22,7 +20,6 @@ const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 const RootStack = createNativeStackNavigator();
 
-const g_userdata = []
 
 const MyTabs = () => {
   return (
@@ -77,11 +74,11 @@ const MyTabs = () => {
 }
 
 
-const MainDrawer = () => {  
+const MainDrawer = ({ userData }) => {  
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Drawer.Navigator
-        drawerContent={(props) => <CustomDrawerContent {...props} userData={g_userdata} />}
+        drawerContent={(props) => <CustomDrawerContent {...props} userData={userData} />}
         screenOptions={({route}) => ({
           // Hide the 'Tabs' screen from the drawer menu
           drawerItemStyle: route.name === 'Tabs' ? { height: 0 } : {},
@@ -112,16 +109,15 @@ const HomePage = () => {
         const docSnap = await getDoc(userDocRef);
         if (docSnap.exists()) {
           const data = docSnap.data();
-          const updatedUserData = {
+          setUserData({
             email: data.email,
             username: data.username,
-            profilePicture: data.profilePicture ? { uri: data.profilePicture } : require('./../assets/userDefault.png'),
+            profilePicture: data.profilePicture,
             numberOfFollowers: data.followersCount,
             numberOfFollowing: data.followingCount,
             balance: data.balance,
-          };
-          setUserData(updatedUserData);
-        }
+          });
+          }
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
@@ -132,24 +128,11 @@ const HomePage = () => {
     }
   }, [FIREBASE_AUTH.currentUser?.uid]);
 
-  useEffect(() => {
-    g_userdata[0] = userData.email;
-    g_userdata[1] = userData.username;
-    g_userdata[2] = userData.profilePicture;
-    g_userdata[3] = userData.numberOfFollowers;
-    g_userdata[4] = userData.numberOfFollowing;
-    g_userdata[5] = userData.balance;
-  }, [userData]);
-
-  const navigation = useNavigation();
-
   return (
     <RootStack.Navigator>
-      <RootStack.Screen
-        name="MainDrawer"
-        component={MainDrawer}
-        options={{ headerShown: false }}
-      />
+      <RootStack.Screen name="MainDrawer" options={{ headerShown: false }}>
+        {props => <MainDrawer {...props} userData={userData} />}
+      </RootStack.Screen>
       <RootStack.Screen name="Profil" component={ProfilScreen} />
       <RootStack.Screen name="Settings" component={SettingsScreen} />
     </RootStack.Navigator>

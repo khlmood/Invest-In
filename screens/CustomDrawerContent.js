@@ -4,8 +4,8 @@ import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawe
 import { FIREBASE_AUTH } from './../firebaseConfig';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-// email[0], username[1], profilePicture[2], numberOfFollowers[3], numberOfFollowing[4], balance[5]
-const CustomDrawerContent = ({userData, ...props}) => {
+// email, username, profilePicture, numberOfFollowers, numberOfFollowing, balance
+const CustomDrawerContent = ({ userData, ...props }) => {
   return (
     <DrawerContentScrollView {...props}>
       <View style={styles.profileContainer}>
@@ -15,19 +15,19 @@ const CustomDrawerContent = ({userData, ...props}) => {
             style={styles.profileImage}
           />
         </View>
-        <Text style={styles.userName}>{ userData[1] }</Text>
-        <Text style={styles.userStats}>{userData[3]} followers   {userData[4]} following</Text>
+        <Text style={styles.userName}>{userData.username}</Text>
+        <Text style={styles.userStats}>{userData.numberOfFollowers} followers   {userData.numberOfFollowing} following</Text>
         <DrawerItemList {...props} />
         <TouchableOpacity style={styles.button} onPress={() => props.navigation.navigate('Profil')}>
-          <Icon name="person-outline" size={25} color="black" style={{paddingRight: 20}} />
+          <Icon name="person-outline" size={25} color="black" style={{ paddingRight: 20 }} />
           <Text style={styles.items}>Profil</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => props.navigation.navigate('Settings')}>
-        <Icon name="settings-outline" size={25} color="black" style={{paddingRight: 20}} />
-          <Text style={styles.items} >Settings</Text>
+          <Icon name="settings-outline" size={25} color="black" style={{ paddingRight: 20 }} />
+          <Text style={styles.items}>Settings</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.logoutButton} onPress={() => {FIREBASE_AUTH.signOut()}}>
+      <TouchableOpacity style={styles.logoutButton} onPress={() => { FIREBASE_AUTH.signOut() }}>
         <Text style={styles.logoutText}>Log Out</Text>
       </TouchableOpacity>
     </DrawerContentScrollView>
