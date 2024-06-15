@@ -4,15 +4,8 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Modal,
 
 const lookup = async (symbol) => {
   symbol = symbol.toUpperCase();
-  // Prepare date range (last 7 days)
-  const end = new Date();
-  const start = new Date();
-  start.setDate(end.getDate() - 7);
-  // Format dates as timestamps
-  const period1 = Math.floor(start.getTime() / 1000);
-  const period2 = Math.floor(end.getTime() / 1000);
   // Prepare URL for Yahoo Finance API
-  const url = `https://query1.finance.yahoo.com/v7/finance/download/${encodeURIComponent(symbol)}?period1=${period1}&period2=${period2}&interval=1d&events=history&includeAdjustedClose=true`;
+  const url = `https://query1.finance.yahoo.com/v7/finance/download/${encodeURIComponent(symbol)}`;
   try {
     // Fetch data from API
     const response = await fetch(url, {
@@ -24,18 +17,13 @@ const lookup = async (symbol) => {
     // Parse CSV data
     const csvText = await response.text();
     const rows = csvText.split('\n');
-    const headers = rows[0].split(',');
-    const data = rows.slice(1).reverse().map(row => {
-      const values = row.split(',');
-      return headers.reduce((object, header, index) => {
-        object[header] = values[index];
-        return object;
-      }, {});
-    });
-    // Extract price and return result
-    const price = parseFloat(data[0]['Adj Close']).toFixed(2);
+    const latestRow = rows[1].split(','); // The latest stock data row
+
+    const price = parseFloat(latestRow[4]).toFixed(2);
+    const name = symbol; // Assuming symbol is the name here, adjust if needed.
+
     return {
-      name: symbol,
+      name: name,
       price: price,
       symbol: symbol
     };
@@ -48,10 +36,11 @@ const lookup = async (symbol) => {
 function StocksScreen({ navigation }) {
   const [favorites, setFavorites] = useState(['TSLA', 'AAPL']);
   const [searchText, setSearchText] = useState('');
-  const [isModalVisible, setModalVisible] = useState(false);
   const [selectedStock, setSelectedStock] = useState(null);
   const [transactionType, setTransactionType] = useState('buy'); // 'buy' or 'sell'
   const [number, setNumber] = useState('');
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
 
   useFocusEffect(
     React.useCallback(() => {
@@ -63,7 +52,6 @@ function StocksScreen({ navigation }) {
     const stockData = await lookup(searchText);
     if (stockData) {
       setSelectedStock(stockData);
-      setModalVisible(true);
       if (!favorites.includes(searchText.toUpperCase())) {
         setFavorites([...favorites, searchText.toUpperCase()]);
       }
@@ -77,7 +65,6 @@ function StocksScreen({ navigation }) {
     const stockData = await lookup(stockSymbol);
     if (stockData) {
       setSelectedStock(stockData);
-      setModalVisible(true);
     } else {
       alert('Stock symbol incorrect or doesn\'t exist');
     }
@@ -88,92 +75,124 @@ function StocksScreen({ navigation }) {
   };
 
   const performTransaction = () => {
-    //TODO:: Implement transaction logic
+    // Simulating transaction logic
+    const userBalance = 10000; // Example user balance
+    const ownedStock = 50; // Example owned stock amount
+
+    if (transactionType === 'buy') {
+      const totalCost = selectedStock.price * number;
+      if (totalCost > userBalance) {
+        setModalMessage('Transaction failed: Not enough funds');
+      } else {
+        setModalMessage('Transaction completed');
+      }
+    } else if (transactionType === 'sell') {
+      if (number > ownedStock) {
+        setModalMessage('Transaction failed: Not enough owned stock');
+      } else {
+        setModalMessage('Transaction completed');
+      }
+    }
+    setModalVisible(true);
   };
 
   return (
-    <KeyboardAvoidingView behavior={"padding"} style={{ flex: 1 }} keyboardVerticalOffset={60} >
-    <ScrollView style={styles.container}>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Favorites Watchlist</Text>
-        <ScrollView horizontal>
-          {favorites.map((stock, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.favoriteButton}
-              onPress={() => handleFavoriteSearch(stock)}>
-              <Text>{stock.toUpperCase()}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
+    <KeyboardAvoidingView behavior={"padding"} style={{ flex: 1 }} keyboardVerticalOffset={60}>
+      <ScrollView style={styles.container}>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Favorites Watchlist</Text>
+          <ScrollView horizontal>
+            {favorites.map((stock, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.favoriteButton}
+                onPress={() => handleFavoriteSearch(stock)}>
+                <Text>{stock.toUpperCase()}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
 
-      <View style={styles.divider} />
+        <View style={styles.divider} />
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Search Stock</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Search stock"
-          onChangeText={setSearchText}
-          value={searchText}
-        />
-        <TouchableOpacity style={styles.button} onPress={handleSearch}>
-          <Text style={styles.buttonText}>Search</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.divider} />
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Perform Transaction</Text>
-        <View style={styles.transactionTypeContainer}>
-          <TouchableOpacity 
-            style={[styles.transactionTypeButton, transactionType === 'buy' && styles.activeTransactionType]}
-            onPress={() => chooseTransactionType('buy')}>
-            <Text style={styles.transactionTypeText}>Buy</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.transactionTypeButton, transactionType === 'sell' && styles.activeTransactionType]}
-            onPress={() => chooseTransactionType('sell')}>
-            <Text style={styles.transactionTypeText}>Sell</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Search Stock</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Search stock"
+            onChangeText={setSearchText}
+            value={searchText}
+          />
+          <TouchableOpacity style={styles.button} onPress={handleSearch}>
+            <Text style={styles.buttonText}>Search</Text>
           </TouchableOpacity>
         </View>
-        <TextInput
-          style={styles.input}
-          placeholder="Number"
-          onChangeText={setNumber}
-          value={number}
-          keyboardType="numeric"
-        />
-        <TouchableOpacity style={styles.button} onPress={performTransaction}>
-          <Text style={styles.buttonText}>Perform Transaction</Text>
-        </TouchableOpacity>
-      </View>
 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isModalVisible}
-        onRequestClose={() => {
-          setModalVisible(!isModalVisible);
-        }}>
-        {/* Modal Content */}
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            {/* Display selected stock information */}
-            <Text style={styles.modalText}>{selectedStock?.name}</Text>
-            <Text style={styles.modalText}>{selectedStock?.symbol}</Text>
-            <Text style={styles.modalText}>Price: ${selectedStock?.price}</Text>
-            <TouchableOpacity
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => setModalVisible(!isModalVisible)}>
-              <Text style={styles.textStyle}>Close</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Stock Selected: {selectedStock ? selectedStock.symbol : "None"}</Text>
+          {selectedStock && (
+            <View style={styles.stockInfo}>
+              <View style={styles.infoRow}>
+                <Text style={styles.stockInfoTitle}>Name:             </Text>
+                <Text style={styles.stockInfoText}>{selectedStock.name}</Text>
+              </View>
+              <View style={styles.infoRow}>
+                <Text style={styles.stockInfoTitle}>Symbol:          </Text>
+                <Text style={styles.stockInfoText}>{selectedStock.symbol}</Text>
+              </View>
+              <View style={styles.infoRow}>
+                <Text style={styles.stockInfoTitle}>Price:               </Text>
+                <Text style={styles.stockInfoText}>${selectedStock.price}</Text>
+              </View>
+            </View>
+          )}
+        </View>
+
+        {selectedStock && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Perform Transaction</Text>
+            <View style={styles.transactionTypeContainer}>
+              <TouchableOpacity 
+                style={[styles.transactionTypeButton, transactionType === 'buy' && styles.activeTransactionType]}
+                onPress={() => chooseTransactionType('buy')}>
+                <Text style={styles.transactionTypeText}>Buy</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.transactionTypeButton, transactionType === 'sell' && styles.activeTransactionType]}
+                onPress={() => chooseTransactionType('sell')}>
+                <Text style={styles.transactionTypeText}>Sell</Text>
+              </TouchableOpacity>
+            </View>
+            <TextInput
+              style={styles.input}
+              placeholder="Number"
+              onChangeText={setNumber}
+              value={number}
+              keyboardType="numeric"
+            />
+            <TouchableOpacity style={styles.button} onPress={performTransaction}>
+              <Text style={styles.buttonText}>Perform Transaction</Text>
             </TouchableOpacity>
           </View>
-        </View>
-      </Modal>
-    </ScrollView>
+        )}
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={isModalVisible}
+          onRequestClose={() => setModalVisible(!isModalVisible)}>
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <Text style={styles.modalText}>{modalMessage}</Text>
+              <TouchableOpacity
+                style={[styles.button, styles.buttonClose]}
+                onPress={() => setModalVisible(!isModalVisible)}>
+                <Text style={styles.textStyle}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -280,6 +299,20 @@ const styles = StyleSheet.create({
   },
   activeTransactionType: {
     backgroundColor: 'darkgray',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    marginBottom: 5,
+  },
+  stockInfo: {
+    padding: 20,
+  },
+  stockInfoTitle: {
+    fontSize: 20,
+  },
+  stockInfoText: {
+    fontSize: 20,
+    color: 'blue',
   },
 });
 
