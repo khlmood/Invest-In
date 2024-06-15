@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, KeyboardAvoidingView, Alert, ActivityIndicator } from 'react-native';
 import { FIREBASE_AUTH, FIREBASE_DB } from './../firebaseConfig';
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 const SignUp = ({ navigation }) => {
   const [username, setUsername] = useState('');
@@ -11,12 +11,26 @@ const SignUp = ({ navigation }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [focusedInput, setFocusedInput] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [usernameTaken, setUsernameTaken] = useState(false);
 
   const emailRef = useRef(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     emailRef.current.focus();
   }, []);
+
+  useEffect(() => {
+    const checkUsername = async () => {
+      if (username) {
+        const usernameDocRef = doc(FIREBASE_DB, "usernames", username);
+        const usernameDoc = await getDoc(usernameDocRef);
+        setUsernameTaken(usernameDoc.exists());
+      } else {
+        setUsernameTaken(false);
+      }
+    };
+    checkUsername();
+  }, [username]);
 
   const isEmailValid = (email) => {
     const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
@@ -26,12 +40,17 @@ const SignUp = ({ navigation }) => {
   const isPasswordValid = (password) => {
     return password.length >= 8;
   };
-  
+
   const isConfirmed = () => {
     return password === confirmPassword;
   };
 
   const handleSignUp = async () => {
+    if (usernameTaken) {
+      Alert.alert('Username Taken', 'Please choose a different username.');
+      return;
+    }
+
     if (!isEmailValid(email)) {
       Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
@@ -51,17 +70,25 @@ const SignUp = ({ navigation }) => {
       Alert.alert('Passwords do not match', 'Please make sure your passwords match.');
       return;
     }
-    
+
     setIsLoading(true);
     try {
+      // Create user account
       const userCredential = await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password);
       const user = userCredential.user;
 
+      // Add username to usernames collection
+      const usernameDocRef = doc(FIREBASE_DB, "usernames", username);
+      await setDoc(usernameDocRef, {
+        uid: user.uid
+      });
+
+      // Add user document to users collection
       const userDocRef = doc(FIREBASE_DB, "users", user.uid);
       await setDoc(userDocRef, {
         email: user.email,
         username: username,
-        profilePicture: 'None', 
+        profilePicture: 'None',
         followersCount: 0,
         followingCount: 0,
         balance: 10000,
@@ -73,7 +100,6 @@ const SignUp = ({ navigation }) => {
     } finally {
       setIsLoading(false);
     }
-    return;
   };
 
   if (isLoading) {
@@ -100,6 +126,7 @@ const SignUp = ({ navigation }) => {
           placeholderTextColor="grey"
           placeholder="Username"
         />
+        {usernameTaken && <Text style={styles.warningText}>Username already taken</Text>}
         <TextInput
           ref={emailRef}
           value={email}
@@ -174,6 +201,13 @@ const styles = StyleSheet.create({
   focusedInput: {
     borderColor: 'white',
     borderWidth: 1,
+  },
+  warningText: {
+    color: 'red',
+    alignSelf: 'center',
+    width: '90%',
+    marginTop: -10,
+    marginBottom: 10,
   },
   forgotButton: {
     marginTop: 20,
