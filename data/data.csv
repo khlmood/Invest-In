@@ -58,7 +58,7 @@ Baker Hughes,BKR
 Ball Corporation,BALL
 Bank of America,BAC
 Bank of New York Mellon,BK
-"Bath & Body Works,BBWI
+Bath & Body Works,BBWI
 Baxter International,BAX
 Becton Dickinson,BDX
 Berkshire Hathaway,BRK.B
@@ -189,7 +189,7 @@ Expedia Group,EXPE
 Expeditors International,EXPD
 Extra Space Storage,EXR
 ExxonMobil,XOM
-"F5,FFIV
+F5,FFIV
 FactSet,FDS
 Fair Isaac,FICO
 Fastenal,FAST
@@ -332,14 +332,14 @@ Morgan Stanley,MS
 Mosaic Company (The),MOS
 Motorola Solutions,MSI
 MSCI,MSCI
-"Nasdaq,NDAQ
+Nasdaq,NDAQ
 NetApp,NTAP
 Netflix,NFLX
 Newmont,NEM
 News Corp (Class A),NWSA
 News Corp (Class B),NWS
 NextEra Energy,NEE
-"Nike,NKE
+Nike,NKE
 NiSource,NI
 Nordson Corporation,NDSN
 Norfolk Southern Railway,NSC
@@ -349,7 +349,7 @@ Norwegian Cruise Line Holdings,NCLH
 NRG Energy,NRG
 Nucor,NUE
 Nvidia,NVDA
-"NVR,NVR
+NVR,NVR
 NXP Semiconductors,NXPI
 O'Reilly Auto Parts,ORLY
 Occidental Petroleum,OXY
@@ -403,7 +403,7 @@ ResMed,RMD
 Revvity,RVTY
 Robert Half,RHI
 Rockwell Automation,ROK
-"Rollins,ROL
+Rollins,ROL
 Roper Technologies,ROP
 Ross Stores,ROST
 Royal Caribbean Group,RCL
@@ -435,14 +435,14 @@ Sysco,SYY
 T-Mobile US,TMUS
 T. Rowe Price,TROW
 Take-Two Interactive,TTWO
-"Tapestry,TPR
+Tapestry,TPR
 Targa Resources,TRGP
 Target Corporation,TGT
 TE Connectivity,TEL
 Teledyne Technologies,TDY
 Teleflex,TFX
 Teradyne,TER
-"Tesla,TSLA
+Tesla,TSLA
 Texas Instruments,TXN
 Textron,TXT
 Thermo Fisher Scientific,TMO
@@ -457,7 +457,7 @@ Tyler Technologies,TYL
 Tyson Foods,TSN
 U.S. Bank,USB
 Uber,UBER
-"UDR,UDR
+UDR,UDR
 Ulta Beauty,ULTA
 Union Pacific Corporation,UNP
 United Airlines Holdings,UAL
